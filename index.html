@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>GradeSync — Student Grade Tracker</title>
+    <meta name="description" content="GradeSync is a premium student grade tracking dashboard. Add students, view performance metrics, analyze grade distributions, and generate summary reports."/>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS (Stitch Design System) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "on-primary-fixed": "#001b3c",
+              "on-primary": "#ffffff",
+              "surface-bright": "#f8f9ff",
+              "error": "#ba1a1a",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#43474e",
+              "surface-container": "#e5eeff",
+              "surface": "#f8f9ff",
+              "background": "#f8f9ff",
+              "inverse-surface": "#223144",
+              "on-primary-fixed-variant": "#2d476f",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#d2e4ff",
+              "on-secondary": "#ffffff",
+              "inverse-on-surface": "#eaf1ff",
+              "on-error": "#ffffff",
+              "surface-container-low": "#eff4ff",
+              "on-secondary-fixed-variant": "#00497e",
+              "tertiary-container": "#003f23",
+              "secondary-container": "#66affe",
+              "on-secondary-container": "#004172",
+              "surface-container-lowest": "#ffffff",
+              "on-background": "#0d1c2e",
+              "surface-container-high": "#dce9ff",
+              "surface-dim": "#ccdbf4",
+              "outline-variant": "#c4c6cf",
+              "outline": "#74777f",
+              "on-surface": "#0d1c2e",
+              "secondary-fixed-dim": "#9fcaff",
+              "surface-variant": "#d4e4fc",
+              "on-primary-container": "#86a0cd",
+              "surface-container-highest": "#d4e4fc",
+              "primary-fixed-dim": "#adc7f7",
+              "tertiary": "#002713",
+              "on-tertiary-fixed-variant": "#00522f",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#74db9d",
+              "secondary": "#0061a5",
+              "on-secondary-fixed": "#001d37",
+              "surface-tint": "#455f88",
+              "on-tertiary-fixed": "#002110",
+              "inverse-primary": "#adc7f7",
+              "primary-fixed": "#d6e3ff",
+              "primary-container": "#1a365d",
+              "tertiary-fixed": "#91f8b8",
+              "on-tertiary-container": "#4bb278",
+              "primary": "#002045"
+            },
+            "borderRadius": {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+            "spacing": {
+              "container-max-width": "1280px",
+              "gutter": "24px",
+              "margin-mobile": "16px",
+              "unit": "4px",
+              "margin-desktop": "32px"
+            },
+            "fontFamily": {
+              "headline-md": ["Inter"],
+              "body-sm": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-lg-mobile": ["Inter"],
+              "headline-lg": ["Inter"],
+              "label-caps": ["Inter"],
+              "display-metric": ["Inter"]
+            },
+            "fontSize": {
+              "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+              "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+              "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+              "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+              "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+              "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+              "display-metric": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css"/>
+    <style>
+        body {
+            background-color: #f8f9ff;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .academic-card { box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05); }
+        body { min-height: max(884px, 100dvh); }
+
+        /* === Animations === */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateX(100%) scale(0.95); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        @keyframes toast-out {
+            from { opacity: 1; transform: translateX(0) scale(1); }
+            to { opacity: 0; transform: translateX(100%) scale(0.95); }
+        }
+        @keyframes bar-grow {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+        @keyframes progress-fill {
+            from { width: 0; }
+        }
+
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out both; }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out both; }
+
+        .metric-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .metric-card:hover { transform: translateY(-4px); box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08); }
+        .metric-value { animation: countUp 0.8s ease-out both; }
+        .progress-bar-fill { animation: progress-fill 1s ease-out both; animation-delay: 0.3s; }
+
+        .student-row { animation: fadeInUp 0.4s ease-out both; transition: background-color 0.2s ease; }
+        .student-row:hover .student-actions { opacity: 1; transform: translateX(0); }
+        .student-actions { opacity: 0; transform: translateX(8px); transition: all 0.25s ease; }
+
+        .grade-chip { font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 600; padding: 4px 12px; border-radius: 9999px; display: inline-block; }
+        .grade-a { background: #91f8b8; color: #002110; }
+        .grade-b { background: #d2e4ff; color: #001d37; }
+        .grade-c { background: #ffdead; color: #281900; }
+        .grade-d { background: #ffdad6; color: #93000a; }
+        .grade-f { background: #ba1a1a; color: #ffffff; }
+
+        .chart-bar { transform-origin: bottom; animation: bar-grow 0.6s ease-out both; border-radius: 6px 6px 0 0; transition: opacity 0.2s ease; }
+        .chart-bar:nth-child(1) { animation-delay: 0.1s; }
+        .chart-bar:nth-child(2) { animation-delay: 0.2s; }
+        .chart-bar:nth-child(3) { animation-delay: 0.3s; }
+        .chart-bar:nth-child(4) { animation-delay: 0.4s; }
+        .chart-bar:nth-child(5) { animation-delay: 0.5s; }
+        .chart-bar:hover { opacity: 0.85; cursor: pointer; }
+
+        .toast-container { position: fixed; top: 80px; right: 16px; z-index: 100; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { pointer-events: auto; display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; line-height: 20px; box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.12); animation: toast-in 0.4s ease-out both; max-width: 360px; backdrop-filter: blur(12px); }
+        .toast.removing { animation: toast-out 0.3s ease-in both; }
+        .toast-success { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+        .toast-error { background: #fce4ec; color: #b71c1c; border: 1px solid #ef9a9a; }
+        .toast-warning { background: #fff8e1; color: #e65100; border: 1px solid #ffe082; }
+        .toast-info { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
+
+        .delete-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: #74777f; cursor: pointer; transition: all 0.2s ease; }
+        .delete-btn:hover { background: #ffdad6; color: #ba1a1a; }
+
+        .confirm-overlay { position: fixed; inset: 0; background: rgba(13, 28, 46, 0.5); backdrop-filter: blur(4px); z-index: 200; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
+        .confirm-dialog { background: #ffffff; border-radius: 1.5rem; padding: 32px; max-width: 400px; width: calc(100% - 32px); box-shadow: 0px 16px 48px rgba(0, 0, 0, 0.15); animation: fadeInUp 0.3s ease-out both; }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; animation: fadeIn 0.6s ease-out both; }
+        .empty-state .material-symbols-outlined { font-size: 64px; color: #c4c6cf; margin-bottom: 16px; }
+
+        .search-input { transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .search-input:focus { border-color: #0061a5; box-shadow: 0 0 0 3px rgba(0, 97, 165, 0.12); }
+    </style>
+</head>
+
+<body class="font-body-lg text-on-surface">
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Confirm Delete Dialog -->
+<div class="confirm-overlay hidden" id="confirm-overlay">
+    <div class="confirm-dialog">
+        <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-error" style="font-size:28px;font-variation-settings:'FILL' 1;">warning</span>
+            <h3 class="font-headline-md text-headline-md text-on-surface">Remove Student</h3>
+        </div>
+        <p class="text-on-surface-variant text-body-lg font-body-lg mb-6">
+            Are you sure you want to remove <strong id="confirm-student-name" class="text-primary">this student</strong> from the records? This action cannot be undone.
+        </p>
+        <div class="flex gap-3 justify-end">
+            <button id="confirm-no" class="px-6 py-2.5 rounded-lg font-headline-md text-body-sm bg-surface-container-high text-on-surface hover:bg-surface-dim transition-colors">
+                Cancel
+            </button>
+            <button id="confirm-yes" class="px-6 py-2.5 rounded-lg font-headline-md text-body-sm bg-error text-on-error hover:opacity-90 transition-opacity">
+                Remove
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TOP APP BAR ==================== -->
+<header class="bg-surface-container-lowest border-b border-outline-variant fixed top-0 w-full z-40 h-16">
+    <div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-container-max-width mx-auto h-full">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary font-headline-md text-headline-md" style="font-variation-settings:'FILL' 1;">school</span>
+            <h1 class="font-headline-md text-headline-md font-bold text-primary">GradeSync</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="hidden md:flex items-center gap-6">
+                <button class="font-label-caps text-label-caps text-primary font-bold transition-colors">Dashboard</button>
+                <button class="font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-colors p-2 rounded-lg">History</button>
+                <button class="font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-colors p-2 rounded-lg">Settings</button>
+            </div>
+            <div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant bg-primary-fixed flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary" style="font-size:22px;font-variation-settings:'FILL' 1;">person</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main class="pt-20 pb-24 max-w-container-max-width mx-auto px-margin-mobile md:px-margin-desktop">
+
+    <!-- ===== PERFORMANCE OVERVIEW (Metrics Cards) ===== -->
+    <section class="mb-10 animate-fade-in-up">
+        <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-6">Performance Overview</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-gutter">
+            <!-- Class Average -->
+            <div class="metric-card bg-surface-container-lowest p-5 md:p-6 rounded-xl border border-outline-variant academic-card flex flex-col items-center justify-center text-center">
+                <span class="font-label-caps text-label-caps text-on-surface-variant mb-2">CLASS AVERAGE</span>
+                <div class="font-display-metric text-display-metric text-secondary-container leading-tight" id="metric-average">—</div>
+                <div class="w-full h-2 bg-surface-container rounded-full mt-4 overflow-hidden">
+                    <div class="bg-secondary-container h-full progress-bar-fill" id="bar-average" style="width: 0%"></div>
+                </div>
+            </div>
+            <!-- Highest Score -->
+            <div class="metric-card bg-surface-container-lowest p-5 md:p-6 rounded-xl border border-outline-variant academic-card flex flex-col items-center justify-center text-center">
+                <span class="font-label-caps text-label-caps text-on-surface-variant mb-2">HIGHEST SCORE</span>
+                <div class="font-display-metric text-display-metric text-on-tertiary-container leading-tight" id="metric-highest">—</div>
+                <div class="w-full h-2 bg-surface-container rounded-full mt-4 overflow-hidden">
+                    <div class="bg-on-tertiary-container h-full progress-bar-fill" id="bar-highest" style="width: 0%"></div>
+                </div>
+            </div>
+            <!-- Lowest Score -->
+            <div class="metric-card bg-surface-container-lowest p-5 md:p-6 rounded-xl border border-outline-variant academic-card flex flex-col items-center justify-center text-center">
+                <span class="font-label-caps text-label-caps text-on-surface-variant mb-2">LOWEST SCORE</span>
+                <div class="font-display-metric text-display-metric text-error leading-tight" id="metric-lowest">—</div>
+                <div class="w-full h-2 bg-surface-container rounded-full mt-4 overflow-hidden">
+                    <div class="bg-error h-full progress-bar-fill" id="bar-lowest" style="width: 0%"></div>
+                </div>
+            </div>
+            <!-- Pass Rate -->
+            <div class="metric-card bg-surface-container-lowest p-5 md:p-6 rounded-xl border border-outline-variant academic-card flex flex-col items-center justify-center text-center">
+                <span class="font-label-caps text-label-caps text-on-surface-variant mb-2">PASS RATE</span>
+                <div class="font-display-metric text-display-metric text-primary leading-tight" id="metric-passrate">—</div>
+                <div class="w-full h-2 bg-surface-container rounded-full mt-4 overflow-hidden">
+                    <div class="bg-primary h-full progress-bar-fill" id="bar-passrate" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ADD NEW RECORDS (Desktop Form) ===== -->
+    <section class="hidden md:block bg-surface-container-low p-8 rounded-xl border-2 border-dashed border-outline-variant mb-10 animate-fade-in-up" style="animation-delay: 0.1s;">
+        <h3 class="font-headline-md text-headline-md text-primary mb-6">
+            <span class="material-symbols-outlined align-middle mr-2" style="font-size:24px;">person_add</span>
+            Add New Student
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+            <div class="flex flex-col gap-2">
+                <label class="font-label-caps text-label-caps text-on-surface-variant" for="desktop-name">Student Name</label>
+                <input class="bg-surface-container-lowest border border-outline rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary focus:outline-none" 
+                       id="desktop-name" placeholder="Enter full name" type="text" autocomplete="off"/>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-label-caps text-label-caps text-on-surface-variant" for="desktop-grade">Grade Percentage</label>
+                <input class="bg-surface-container-lowest border border-outline rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary focus:outline-none" 
+                       id="desktop-grade" placeholder="0 — 100" type="number" min="0" max="100" step="0.1"/>
+            </div>
+            <div class="flex items-end">
+                <button id="desktop-add-btn" class="w-full bg-primary-container text-on-primary py-3.5 rounded-lg font-headline-md text-body-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 active:scale-[0.98]">
+                    <span class="material-symbols-outlined">add</span>
+                    Add Student
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ACTIVE STUDENTS (Table) ===== -->
+    <section class="mb-10 animate-fade-in-up" style="animation-delay: 0.15s;">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+            <div>
+                <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg">Active Students</h2>
+                <p class="font-body-sm text-body-sm text-on-surface-variant" id="student-count"></p>
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <!-- Search -->
+                <div class="relative flex-1 md:flex-none">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style="font-size:20px;">search</span>
+                    <input id="search-input" type="text" placeholder="Search students..." 
+                           class="search-input w-full md:w-64 bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 text-body-sm font-body-sm focus:outline-none"/>
+                </div>
+                <!-- Mobile Add Button -->
+                <button id="fab-add" class="md:hidden flex items-center gap-2 bg-primary text-on-primary px-4 py-2.5 rounded-lg font-label-caps text-label-caps shrink-0 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined text-[18px]">person_add</span>
+                    ADD
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant academic-card overflow-hidden">
+            <table class="w-full text-left border-collapse" id="student-table">
+                <thead class="bg-surface-container-low border-b border-outline-variant">
+                    <tr>
+                        <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant">STUDENT NAME</th>
+                        <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant text-center">SCORE</th>
+                        <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant text-center hidden md:table-cell">GRADE</th>
+                        <th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant text-right">STATUS</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant" id="student-list">
+                    <!-- Rendered by app.js -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ===== GRADE DISTRIBUTION CHART ===== -->
+    <section class="mb-10 animate-fade-in-up" style="animation-delay: 0.2s;">
+        <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-6">
+            <span class="material-symbols-outlined align-middle mr-2" style="font-size:28px;">bar_chart</span>
+            Grade Distribution
+        </h2>
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant academic-card p-6 md:p-8">
+            <!-- Chart Bars -->
+            <div class="flex items-end gap-4 md:gap-8 justify-center max-w-lg mx-auto" id="chart-bars">
+                <!-- Rendered by app.js -->
+            </div>
+            <!-- Empty State -->
+            <div class="hidden" id="chart-empty">
+                <div class="empty-state">
+                    <span class="material-symbols-outlined">insert_chart</span>
+                    <p class="text-on-surface-variant text-body-lg font-body-lg">Add students to see the grade distribution chart.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ==================== MOBILE MODAL ==================== -->
+<div class="fixed inset-0 bg-on-background/40 z-[60] hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm flex items-end justify-center" id="modal-overlay">
+    <div class="bg-surface-container-lowest w-full rounded-t-3xl p-margin-mobile transform translate-y-full transition-transform duration-300 academic-card" id="modal-content">
+        <div class="w-12 h-1.5 bg-outline-variant rounded-full mx-auto mb-6"></div>
+        <h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-6">Enroll Student</h3>
+        <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-2">
+                <label class="font-label-caps text-label-caps text-on-surface-variant" for="mobile-name">Student Name</label>
+                <input class="bg-surface-container-low border border-outline-variant rounded-xl px-4 py-4 focus:ring-2 focus:ring-secondary focus:outline-none text-body-lg" 
+                       id="mobile-name" placeholder="e.g. Liam Smith" type="text" autocomplete="off"/>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-label-caps text-label-caps text-on-surface-variant" for="mobile-grade">Score (%)</label>
+                <input class="bg-surface-container-low border border-outline-variant rounded-xl px-4 py-4 focus:ring-2 focus:ring-secondary focus:outline-none text-body-lg" 
+                       id="mobile-grade" placeholder="0 — 100" type="number" min="0" max="100" step="0.1"/>
+            </div>
+            <div class="flex gap-4 mt-2">
+                <button class="flex-1 bg-surface-container-highest text-on-surface py-4 rounded-xl font-headline-md text-body-lg active:scale-95 transition-transform" onclick="app.toggleModal(false)">Cancel</button>
+                <button id="mobile-add-btn" class="flex-[2] bg-primary text-on-primary py-4 rounded-xl font-headline-md text-body-lg flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined">save</span>
+                    Confirm
+                </button>
+            </div>
+        </div>
+        <div class="h-8"></div>
+    </div>
+</div>
+
+<!-- ==================== BOTTOM NAV (Mobile) ==================== -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-surface-container-lowest border-t border-outline-variant">
+    <a class="flex flex-col items-center justify-center text-primary font-bold transition-transform active:scale-95" href="#">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+        <span class="font-label-caps text-[10px]">Dashboard</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform active:scale-95" href="#">
+        <span class="material-symbols-outlined">history</span>
+        <span class="font-label-caps text-[10px]">History</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition-transform active:scale-95" href="#">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="font-label-caps text-[10px]">Settings</span>
+    </a>
+</nav>
+
+<!-- Application Logic -->
+<script src="app.js"></script>
+
+</body>
+</html>
