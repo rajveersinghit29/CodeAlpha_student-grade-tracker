@@ -329,6 +329,12 @@ class GradeSyncApp {
         const confirmNo = document.getElementById('confirm-no');
         if (confirmYes) confirmYes.addEventListener('click', () => this.confirmDelete());
         if (confirmNo) confirmNo.addEventListener('click', () => this.cancelDelete());
+
+        // Export CSV button
+        const exportBtn = document.getElementById('btn-export');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.exportToCSV());
+        }
     }
 
     // ---- Add Student Handler ----
@@ -399,6 +405,58 @@ class GradeSyncApp {
         this.pendingDeleteId = null;
         const dialog = document.getElementById('confirm-overlay');
         if (dialog) dialog.classList.add('hidden');
+    }
+
+    // ---- Demo Data and CSV Export ----
+    loadDemoData() {
+        const demoStudents = [
+            { name: "Aarav Sharma", grade: 88.5 },
+            { name: "Priya Patel", grade: 94.0 },
+            { name: "Rohan Das", grade: 72.0 },
+            { name: "Sneha Reddy", grade: 45.5 },
+            { name: "Vikram Singh", grade: 61.0 },
+            { name: "Ananya Iyer", grade: 91.5 },
+            { name: "Kabir Mehta", grade: 79.0 }
+        ];
+        
+        // Clear existing just in case, or add to them
+        for (const ds of demoStudents) {
+            this.tracker.addStudent(ds.name, ds.grade);
+        }
+        
+        this.toast.show("Loaded 7 demo student records!", "success");
+        this.render();
+    }
+
+    exportToCSV() {
+        const students = this.tracker.students;
+        if (students.length === 0) {
+            this.toast.show("No student data to export.", "warning");
+            return;
+        }
+        
+        // Generate CSV structure
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Student Name,Score (%),Letter Grade,Status,Enrollment Date\n";
+        
+        for (const s of students) {
+            const name = `"${s.getName().replace(/"/g, '""')}"`;
+            const score = s.getGrade().toFixed(1);
+            const grade = s.getLetterGrade();
+            const status = s.getStatus();
+            const date = new Date(s.getTimestamp()).toLocaleDateString('en-IN');
+            csvContent += `${name},${score},${grade},${status},${date}\n`;
+        }
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `GradeSync_Report_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        this.toast.show("CSV report exported successfully!", "success");
     }
 
     // ---- Modal ----
@@ -484,18 +542,36 @@ class GradeSyncApp {
             ? this.tracker.searchStudents(this.currentSearch)
             : this.tracker.getAllStudents();
 
+        const exportBtn = document.getElementById('btn-export');
+        if (exportBtn) {
+            if (this.tracker.getStudentCount() > 0) {
+                exportBtn.classList.remove('hidden');
+                exportBtn.classList.add('md:flex');
+            } else {
+                exportBtn.classList.add('hidden');
+                exportBtn.classList.remove('md:flex');
+            }
+        }
+
         if (students.length === 0) {
             const message = this.currentSearch
                 ? `No students match "${this.currentSearch}"`
                 : 'No students added yet. Add your first student above!';
             const icon = this.currentSearch ? 'search_off' : 'school';
+            const showDemoBtn = !this.currentSearch;
 
             tbody.innerHTML = `
                 <tr>
                     <td colspan="4">
                         <div class="empty-state">
                             <span class="material-symbols-outlined">${icon}</span>
-                            <p class="text-on-surface-variant text-body-lg font-body-lg">${message}</p>
+                            <p class="text-on-surface-variant text-body-lg font-body-lg mb-2">${message}</p>
+                            ${showDemoBtn ? `
+                                <button onclick="app.loadDemoData()" class="mt-2 px-4 py-2.5 bg-primary-fixed text-on-primary-fixed hover:bg-surface-variant rounded-lg font-label-caps text-label-caps active:scale-95 transition-transform flex items-center gap-2 mx-auto border border-outline-variant">
+                                    <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+                                    Load Sample Data
+                                </button>
+                            ` : ''}
                         </div>
                     </td>
                 </tr>
